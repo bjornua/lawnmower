@@ -1,42 +1,42 @@
-require(
-    ["react", "immutable"], function (React, Immutable) {
+define(["react", "immutable", "vector"], function (React, Immutable, Vector) {
     "use strict";
-    var Position = Immutable.Record({
-        x: undefined,
-        y: undefined
-    });
 
-    var Grid = Immutable.Record({
-        width: undefined,
-        height: undefined
-    });
+    var Rectangle = Immutable.Record({
+        topLeft: undefined,
+        s: undefined
+    }, "Rectangle");
 
     var toPercent = function (val) {
         return (val * 100).toFixed(4) + "%";
     };
 
+
     var Tile = React.createClass({
         displayName: "Tile",
         render: function () {
-            var x0, x1, y0, y1;
+            var self = this;
 
-            x0 = this.props.pos.x / this.props.grid.width;
-            x1 = (this.props.pos.x + 1) / this.props.grid.width;
-            y0 = this.props.pos.y / this.props.grid.height;
-            y1 = (this.props.pos.y + 1) / this.props.grid.height;
+            vx = Immutable.List([self.props.pos, new Vector([1, 1])]);
+
+            rect = rect.map(function (v) {
+                var divided = v.divide(self.props.grid);
+                var percentage = divided.map(toPercent);
+                return percentage;
+            });
+
 
             var style = Immutable.fromJS({
                 position: "absolute",
                 overflow: "hidden",
-                left: toPercent(x0),
-                top: toPercent(y0),
-                right: toPercent(1 - x1),
-                bottom: toPercent(1 - y1),
+                left: rect.topLeft.x,
+                top: rect.topLeft.y,
+                width: rect.s.x,
+                bottom: rect.s.y,
                 border: "1px solid rgba(0, 50, 0, 1)"
             });
-            style = style.merge(style, this.props.style);
+            style = style.merge(style, self.props.style);
 
-            return React.createElement("div", {style: style.toJS()}, this.props.children);
+            return React.createElement("div", {style: style.toJS()}, self.props.children);
 
         }
     });
@@ -80,9 +80,9 @@ require(
 
         render: function () {
             var self = this;
-            var tiles = Immutable.Range(0, self.props.grid.height).map(function (y) {
-                return Immutable.Range(0, self.props.grid.width).map(function (x) {
-                    var pos = Position({x: x, y: y});
+            var tiles = Immutable.Range(0, self.props.grid.get(0)).map(function (y) {
+                return Immutable.Range(0, self.props.grid.get(1)).map(function (x) {
+                    var pos = new Vector([x, y]);
                     return React.createElement(GrassTile, {pos: pos, grid: self.props.grid, key: String(x) + "_" + String(y)});
                 });
             }).flatten(1);
@@ -94,7 +94,7 @@ require(
                 position: "relative"
             }},
                 tiles.toJS(),
-                React.createElement(LawnMower, {pos: Position({x: 0, y: 0}), grid: self.props.grid})
+                React.createElement(LawnMower, {pos: new Vector([0, 0]), grid: self.props.grid})
             );
 
         }
@@ -103,7 +103,7 @@ require(
     var Main = React.createClass({
         displayName: "main",
         render: function () {
-            return React.createElement(GridWidget, {grid: Grid({width: 10, height: 10})});
+            return React.createElement(GridWidget, {grid: new Vector([10, 10])});
         }
     });
 

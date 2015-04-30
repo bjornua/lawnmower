@@ -7,6 +7,6 @@ require.config({
     }
 });
 
-require(["main"], function () {
+define(["main"], function () {
     "use strict";
 });
