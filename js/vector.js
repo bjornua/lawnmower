@@ -37,6 +37,9 @@ define([], function () {
         map (f) {
             return new Vector(f(this.x), f(this.y));
         }
+        toString () {
+            return "Vector(" + String(this.x) + ", " + String(this.y) + ")";
+        }
     }
 
     return Vector;
