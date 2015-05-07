@@ -1,9 +1,5 @@
 define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
     "use strict";
-    var forwardMover = function (game) {
-        return game.moveForward();
-    };
-
     var getDir = function (vec) {
         if (vec.y === 1) {
             return 1;
@@ -52,9 +48,5 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
         return game.turnLeft();
     };
 
-
-    return {
-        forwardMover: forwardMover,
-        edgeMover: edgeMover
-    };
+    return edgeMover;
 });

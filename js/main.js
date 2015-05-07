@@ -1,9 +1,5 @@
-define(["react", "immutable", "vector", "game", "ai"], function (React, Immutable, Vector, Game, AI) {
+define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React, Immutable, Vector, Game, AI) {
     "use strict";
-
-    var toPercent = function (val) {
-        return (val * 100).toFixed(4) + "%";
-    };
 
     var Tile = React.createClass({
         displayName: "Tile",
@@ -155,7 +151,7 @@ define(["react", "immutable", "vector", "game", "ai"], function (React, Immutabl
         componentDidMount: function () {
             var self = this;
             setInterval(function () {
-                var game = AI.edgeMover(self.state.game);
+                var game = AI(self.state.game);
                 self.setState({
                     game: game
                 });
