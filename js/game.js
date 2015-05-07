@@ -11,6 +11,9 @@ define(["vector", "immutable"], function (Vector, Immutable) {
         ])),
         bounds: new Vector(20, 20)
     });
+    Area.prototype.isCompleted = function () {
+        return this.bounds.x * this.bounds.y === this.grassCut.size - 60;
+    };
     Area.prototype.getTileType = function (pos) {
         if (
                pos.x < 0
@@ -38,7 +41,7 @@ define(["vector", "immutable"], function (Vector, Immutable) {
         area: Area(),
         pos: new Vector(0, 0),
         dir: 0,
-        prevMove: null
+        score: 0
     }, "Game");
 
     Game.prototype.turnRight = function () {
@@ -49,7 +52,8 @@ define(["vector", "immutable"], function (Vector, Immutable) {
             newDir += 1;
         }
         return this.merge({
-            dir: newDir
+            dir: newDir,
+            score: this.score - 1
         });
     };
     Game.prototype.turnLeft = function () {
@@ -60,12 +64,22 @@ define(["vector", "immutable"], function (Vector, Immutable) {
             newDir -= 1;
         }
         return this.merge({
-            dir: newDir
+            dir: newDir,
+            score: this.score - 1
         });
 
     };
+
+    Game.prototype.isCompleted = function () {
+        return this.area.isCompleted();
+    };
+
     Game.prototype.cut = function (pos) {
+        if (this.area.isCut(pos)) {
+            return this;
+        }
         return this.merge({
+            score: this.score + 2,
             area: this.area.cut(pos)
         });
     };
@@ -86,12 +100,14 @@ define(["vector", "immutable"], function (Vector, Immutable) {
 
         var newPos = this.pos.add(v);
         if (this.getTileType(newPos) !== TILE_OOB) {
-
             return this.merge({
+                score: this.score - 0.3333,
                 pos: newPos
             }).cut(newPos);
         }
-        return this;
+        return this.merge({
+            score: this.score - 0.3333
+        });
     };
     Game.prototype.backward = function () {
     };
