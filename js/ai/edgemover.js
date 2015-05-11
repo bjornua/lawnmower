@@ -32,10 +32,9 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
             var dir = getDir(pos.subtract(game.pos));
             return perimeter.size - (game.dir === dir ? 0.5 : 0);
         });
-        console.log(String(next));
-        // if (next.size === undefined) {
-        //     return game;
-        // }
+        if (next === undefined) {
+             return game;
+        }
 
         var dir = getDir(next.subtract(game.pos));
 

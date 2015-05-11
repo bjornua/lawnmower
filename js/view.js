@@ -153,8 +153,14 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                     dir: self.props.game.dir
                 }),
                 React.createElement("button", {style: {
-                    position: "absolute"
-                }, onClick: function () { self.props.onStop(); }}, "STOP/START")
+                    position: "absolute",
+                    top: 0,
+                    right: 0
+                }, onClick: self.props.onStop}, "STOP/START"),
+                React.createElement("div", {style: {
+                    position: "absolute",
+                    background: "rgba(255, 255, 255, 0.8)"
+                }}, "Score: ", self.props.game.score.toFixed(2))
             );
 
         }

@@ -12,7 +12,7 @@ define(["vector", "immutable"], function (Vector, Immutable) {
 
     var Area = Immutable.Record({
         tiles: Immutable.Map(),
-        bounds: new Vector(20, 20)
+        bounds: new Vector(10, 10)
     }, "Area");
     Area.prototype.getTile = function (pos) {
         var tile = Tile({pos: pos});
