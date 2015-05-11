@@ -1,7 +1,7 @@
 require.config({
     map: {
         "*": {
-            immutable: "3rdparty/immutable.min",
+            immutable: "3rdparty/immutable",
             react: "3rdparty/react"
         }
     }

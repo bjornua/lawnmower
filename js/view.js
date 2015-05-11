@@ -1,39 +1,22 @@
 define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React, Immutable, Vector, Game, AI) {
     "use strict";
 
+    var IMequals = function (a, b) {
+        return Immutable.is(Immutable.fromJS(a), Immutable.fromJS(b));
+    };
+
+    var PureRenderMixin = {
+        shouldComponentUpdate: function (nextProps, nextState) {
+            return !(
+                IMequals(nextProps, this.props)
+                && IMequals(nextState, this.state)
+            );
+        }
+    };
+
     var Tile = React.createClass({
         displayName: "Tile",
-        shouldComponentUpdate: function (nextProps) {
-            if (nextProps.pos.x !== this.props.pos.x) {
-                return true;
-            }
-            if (nextProps.pos.y !== this.props.pos.y) {
-                return true;
-            }
-            if (nextProps.area.bounds.x !== this.props.area.bounds.x) {
-                return true;
-            }
-            if (nextProps.area.bounds.y !== this.props.area.bounds.y) {
-                return true;
-            }
-            if (nextProps.children !== this.props.children) {
-                return true;
-            }
-            if (nextProps.orientation !== this.props.orientation) {
-                return true;
-            }
-            if (nextProps.canvas.x !== this.props.canvas.x) {
-                return true;
-            }
-            if (nextProps.canvas.x !== this.props.canvas.y) {
-                return true;
-            }
-            if (Immutable.is(Immutable.fromJS(nextProps.style), Immutable.fromJS(this.props.style))) {
-                return true;
-            }
-
-            return false;
-        },
+        mixins: [PureRenderMixin],
         render: function () {
             var self = this;
             var pos = self.props.pos;
@@ -41,7 +24,7 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
             var dir = self.props.orientation;
 
             var scale = function (vec) {
-                var gridPos = vec.divide(self.props.area.bounds);
+                var gridPos = vec.divide(self.props.bounds);
                 var canvasPos = gridPos.multiply(self.props.canvas);
                 return canvasPos;
             };
@@ -79,10 +62,12 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
         }
     });
     var GrassTile = React.createClass({
+        displayName: "GrassTile",
+        mixins: [PureRenderMixin],
         render: function () {
             return React.createElement(Tile, {
                 pos: this.props.pos,
-                area: this.props.game.area,
+                bounds: this.props.bounds,
                 canvas: this.props.canvas,
                 style: {
                     backgroundColor: this.props.cut ? "rgb(0, 180, 0)" : "rgb(0, 150, 0)",
@@ -97,21 +82,23 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
 
     var LawnMower = React.createClass({
         displayName: "LawnMower",
+        mixins: [PureRenderMixin],
         render: function () {
             return React.createElement(Tile, {
                 pos: this.props.pos,
-                area: this.props.game.area,
+                bounds: this.props.bounds,
                 canvas: this.props.canvas,
                 style: {
                     textAlign: "right"
                 },
-                orientation: this.props.game.dir
+                orientation: this.props.dir
             }, ">");
         }
     });
 
     var GridWidget = React.createClass({
         displayName: "Grid",
+        mixins: [PureRenderMixin],
         getInitialState: function () {
             return {
                 width: document.body.clientWidth,
@@ -137,7 +124,7 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                     var tile = self.props.game.getTile(pos);
                     return React.createElement(GrassTile, {
                         pos: pos,
-                        game: self.props.game,
+                        bounds: self.props.game.area.bounds,
                         key: String(x) + "_" + String(y),
                         canvas: canvas,
                         cut: tile.type === Game.TILE_GRASS_CUT
@@ -159,7 +146,15 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                 }
             },
                 tiles.toJS(),
-                React.createElement(LawnMower, {pos: self.props.game.pos, game: self.props.game, canvas: canvas})
+                React.createElement(LawnMower, {
+                    pos: self.props.game.pos,
+                    bounds: self.props.game.area.bounds,
+                    canvas: canvas,
+                    dir: self.props.game.dir
+                }),
+                React.createElement("button", {style: {
+                    position: "absolute"
+                }, onClick: function () { self.props.onStop(); }}, "STOP/START")
             );
 
         }
@@ -170,26 +165,35 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
         getInitialState: function () {
             return {
                 i: 0,
-                game: Game.Game()
+                game: Game.Game(),
+                running: true
             };
         },
         componentDidMount: function () {
             var self = this;
 
             setInterval(function () {
-                console.log("Move", self.state.i);
+                if (!self.state.running) {
+                    return;
+                }
                 var game = AI(self.state.game);
                 self.setState({
                     game: game,
                     i: self.state.i + 1
                 });
-            }, 10);
+            }, 1);
         },
         shouldComponentUpdate: function (nextProps, nextState) {
             return !this.state.game.equals(nextState.game);
         },
         render: function () {
-            return React.createElement(GridWidget, {game: this.state.game});
+            var self = this;
+            return React.createElement(GridWidget, {
+                game: this.state.game,
+                onStop: function () {
+                    self.setState({running: !self.state.running});
+                }
+            });
         }
     });
 
