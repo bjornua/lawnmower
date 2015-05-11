@@ -22,7 +22,7 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
         ]).map(function (val) {
             return pos.add(new Vector(val.get(0), val.get(1)));
         }).filter(function (newPos) {
-            return area.getTileType(newPos) === Game.TILE_GRASS_UNCUT;
+            return area.getTile(newPos).type === Game.TILE_GRASS_UNCUT;
         });
     };
 
@@ -32,10 +32,10 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
             var dir = getDir(pos.subtract(game.pos));
             return perimeter.size - (game.dir === dir ? 0.5 : 0);
         });
-
-        if (next.size !== undefined) {
-            return game;
-        }
+        console.log(String(next));
+        // if (next.size === undefined) {
+        //     return game;
+        // }
 
         var dir = getDir(next.subtract(game.pos));
 

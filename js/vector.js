@@ -1,46 +1,48 @@
-define([], function () {
+define(["immutable"], function (Immutable) {
     "use strict";
 
-    class Vector {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            Object.freeze(this);
-        }
-        add(other) {
-            return new Vector(
-                this.x + other.x,
-                this.y + other.y
-            );
-        }
-        subtract(other) {
-            return new Vector(
-                this.x - other.x,
-                this.y - other.y
-            );
-        }
-        divide(other) {
-            return new Vector(
-                this.x / other.x,
-                this.y / other.y
-            );
-        }
-        multiply(other) {
-            return new Vector(
-                this.x * other.x,
-                this.y * other.y
-            );
-        }
-        invert() {
-            return new Vector(this.y, this.x);
-        }
-        map (f) {
-            return new Vector(f(this.x), f(this.y));
-        }
-        toString () {
-            return "Vector(" + String(this.x) + ", " + String(this.y) + ")";
-        }
-    }
+    var VectorStruct = Immutable.Record({
+        x: undefined,
+        y: undefined
+    }, "Vector");
+
+    var Vector = function (x, y) {
+        return new VectorStruct({x: x, y: y});
+    };
+
+    VectorStruct.prototype.add = function (other) {
+        return Vector(
+            this.x + other.x,
+            this.y + other.y
+        );
+    };
+    VectorStruct.prototype.subtract = function (other) {
+        return Vector(
+            this.x - other.x,
+            this.y - other.y
+        );
+    };
+    VectorStruct.prototype.divide = function (other) {
+        return Vector(
+            this.x / other.x,
+            this.y / other.y
+        );
+    };
+    VectorStruct.prototype.multiply = function (other) {
+        return Vector(
+            this.x * other.x,
+            this.y * other.y
+        );
+    };
+    VectorStruct.prototype.invert = function() {
+        return Vector(this.y, this.x);
+    };
+    VectorStruct.prototype.map = function (f) {
+        return Vector(f(this.x), f(this.y));
+    };
+    VectorStruct.prototype.toString = function () {
+        return "Vector(" + String(this.x) + ", " + String(this.y) + ")";
+    };
 
     return Vector;
 

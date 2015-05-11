@@ -134,12 +134,13 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
             var tiles = Immutable.Range(0, self.props.game.area.bounds.y).map(function (y) {
                 return Immutable.Range(0, self.props.game.area.bounds.x).map(function (x) {
                     var pos = new Vector(x, y);
+                    var tile = self.props.game.getTile(pos);
                     return React.createElement(GrassTile, {
                         pos: pos,
                         game: self.props.game,
                         key: String(x) + "_" + String(y),
                         canvas: canvas,
-                        cut: self.props.game.getTileType(pos) === Game.TILE_GRASS_CUT
+                        cut: tile.type === Game.TILE_GRASS_CUT
                     });
                 });
             }).flatten(1);
@@ -182,7 +183,7 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                     game: game,
                     i: self.state.i + 1
                 });
-            }, 1);
+            }, 10);
         },
         shouldComponentUpdate: function (nextProps, nextState) {
             return !this.state.game.equals(nextState.game);

@@ -1,45 +1,47 @@
 define(["vector", "immutable"], function (Vector, Immutable) {
     "use strict";
 
-    var TILE_GRASS_CUT = Symbol("Tile: Cut Grass");
-    var TILE_GRASS_UNCUT = Symbol("Tile: Uncut Grass");
-    var TILE_OOB = Symbol("Tile: Out of bounds");
+    var TILE_GRASS_CUT = "TILE_GRASS_CUT";
+    var TILE_GRASS_UNCUT = "TILE_GRASS_UNCUT";
+    var TILE_OOB = "TILE_OOB";
+
+    var Tile = Immutable.Record({
+        pos: undefined,
+        type: TILE_GRASS_UNCUT
+    }, "Tile");
 
     var Area = Immutable.Record({
-        grassCut: Immutable.Set(Immutable.fromJS([
-            [0, 0], [4, 1], [4, 2], [4, 0]
-        ])),
+        tiles: Immutable.Map(),
         bounds: new Vector(20, 20)
-    });
-    Area.prototype.isCompleted = function () {
-        return this.bounds.x * this.bounds.y === this.grassCut.size - 60;
-    };
-    Area.prototype.getTileType = function (pos) {
+    }, "Area");
+    Area.prototype.getTile = function (pos) {
+        var tile = Tile({pos: pos});
         if (
                pos.x < 0
             || pos.y < 0
             || pos.x >= this.bounds.x
             || pos.y >= this.bounds.y
         ) {
-            return TILE_OOB;
+            return tile.set("type", TILE_OOB);
         }
-        if (this.isCut(pos)) {
-            return TILE_GRASS_CUT;
-        }
-        return TILE_GRASS_UNCUT;
+        return this.tiles.get(pos, tile);
+    };
+
+    Area.prototype.isCompleted = function () {
+        return this.bounds.x * this.bounds.y === this.grassCut.size;
     };
     Area.prototype.cut = function (pos) {
-        return this.merge({
-            grassCut: this.grassCut.add(Immutable.List([pos.x, pos.y]))
-        });
-    };
-    Area.prototype.isCut = function (pos) {
-        return this.grassCut.has(Immutable.List([pos.x, pos.y]));
+        var tile = this.getTile(pos);
+        if (tile.type === TILE_GRASS_UNCUT) {
+            tile = tile.set("type", TILE_GRASS_CUT);
+            return this.setIn(["tiles", pos], tile);
+        }
+        return this;
     };
 
     var Game = Immutable.Record({
         area: Area(),
-        pos: new Vector(0, 0),
+        pos: new Vector(-1, 0),
         dir: 0,
         score: 0
     }, "Game");
@@ -75,7 +77,8 @@ define(["vector", "immutable"], function (Vector, Immutable) {
     };
 
     Game.prototype.cut = function (pos) {
-        if (this.area.isCut(pos)) {
+        var tile = this.getTile(pos);
+        if (tile.type !== TILE_GRASS_UNCUT) {
             return this;
         }
         return this.merge({
@@ -83,8 +86,8 @@ define(["vector", "immutable"], function (Vector, Immutable) {
             area: this.area.cut(pos)
         });
     };
-    Game.prototype.getTileType = function (pos) {
-        return this.area.getTileType(pos);
+    Game.prototype.getTile = function (pos) {
+        return this.area.getTile(pos);
     };
     Game.prototype.moveForward = function () {
         var v;
@@ -99,7 +102,7 @@ define(["vector", "immutable"], function (Vector, Immutable) {
         }
 
         var newPos = this.pos.add(v);
-        if (this.getTileType(newPos) !== TILE_OOB) {
+        if (this.getTile(newPos).type !== TILE_OOB) {
             return this.merge({
                 score: this.score - 0.3333,
                 pos: newPos
