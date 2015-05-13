@@ -1,4 +1,4 @@
-define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
+define(["vector", "game/tile", "immutable"], function (Vector, Tile, Immutable) {
     "use strict";
     var getDir = function (vec) {
         if (vec.y === 1) {
@@ -22,7 +22,7 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
         ]).map(function (val) {
             return pos.add(new Vector(val.get(0), val.get(1)));
         }).filter(function (newPos) {
-            return area.getTile(newPos).type === Game.TILE_GRASS_UNCUT;
+            return area.getTile(newPos).type === Tile.TILE_GRASS_UNCUT;
         });
     };
 
@@ -38,7 +38,7 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
 
         var dir = getDir(next.subtract(game.pos));
 
-        game = game.setNumber(game.pos, 1);
+        //game = game.setNumber(game.pos, 1);
 
         if (game.dir === dir) {
             return game.moveForward();
