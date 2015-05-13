@@ -3,5 +3,11 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
 
 
 
-    return;
+    return function (game) {
+        game.
+        game.setNumber(function () {
+
+        });
+        return game;
+    };
 });

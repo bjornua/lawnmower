@@ -38,6 +38,8 @@ define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
 
         var dir = getDir(next.subtract(game.pos));
 
+        game = game.setNumber(game.pos, 1);
+
         if (game.dir === dir) {
             return game.moveForward();
         }

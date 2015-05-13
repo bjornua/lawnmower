@@ -2,7 +2,7 @@ require.config({
     map: {
         "*": {
             immutable: "3rdparty/immutable",
-            react: "3rdparty/react"
+            react: "3rdparty/react-with-addons"
         }
     }
 });

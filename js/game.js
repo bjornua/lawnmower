@@ -7,24 +7,34 @@ define(["vector", "immutable"], function (Vector, Immutable) {
 
     var Tile = Immutable.Record({
         pos: undefined,
-        type: TILE_GRASS_UNCUT
+        type: TILE_GRASS_UNCUT,
+        number: undefined
     }, "Tile");
 
     var Area = Immutable.Record({
         tiles: Immutable.Map(),
-        bounds: new Vector(10, 10)
+        bounds: new Vector(5, 5)
     }, "Area");
+    Area.prototype.inBounds = function (pos) {
+        return (
+            pos.x >= 0
+            && pos.y >= 0
+            && pos.x < this.bounds.x
+            && pos.y < this.bounds.y
+        );
+    };
     Area.prototype.getTile = function (pos) {
         var tile = Tile({pos: pos});
-        if (
-               pos.x < 0
-            || pos.y < 0
-            || pos.x >= this.bounds.x
-            || pos.y >= this.bounds.y
-        ) {
+        if (!this.inBounds(pos)) {
             return tile.set("type", TILE_OOB);
         }
         return this.tiles.get(pos, tile);
+    };
+    Area.prototype.setTile = function (tile) {
+        if (!this.inBounds(tile.pos)) {
+            throw "OOB Error";
+        }
+        return this.setIn(["tiles", tile.pos], tile);
     };
 
     Area.prototype.isCompleted = function () {
@@ -34,18 +44,17 @@ define(["vector", "immutable"], function (Vector, Immutable) {
         var tile = this.getTile(pos);
         if (tile.type === TILE_GRASS_UNCUT) {
             tile = tile.set("type", TILE_GRASS_CUT);
-            return this.setIn(["tiles", pos], tile);
+            return this.setTile(tile);
         }
         return this;
     };
 
     var Game = Immutable.Record({
         area: Area(),
-        pos: new Vector(-1, 0),
+        pos: new Vector(1, 0),
         dir: 0,
         score: 0
     }, "Game");
-
     Game.prototype.turnRight = function () {
         var newDir = this.dir;
         if (newDir === 3) {
@@ -88,6 +97,14 @@ define(["vector", "immutable"], function (Vector, Immutable) {
     };
     Game.prototype.getTile = function (pos) {
         return this.area.getTile(pos);
+    };
+    Game.prototype.setTile = function (tile) {
+        return this.set("area", this.area.setTile(tile));
+    };
+    Game.prototype.setNumber = function (pos, number) {
+        var tile = this.getTile(pos);
+        tile = tile.set("number", number);
+        return this.setTile(tile);
     };
     Game.prototype.moveForward = function () {
         var v;

@@ -13,6 +13,7 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
             );
         }
     };
+    // var PureRenderMixin = React.addons.PureRenderMixin;
 
     var Tile = React.createClass({
         displayName: "Tile",
@@ -66,16 +67,16 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
         mixins: [PureRenderMixin],
         render: function () {
             return React.createElement(Tile, {
-                pos: this.props.pos,
+                pos: this.props.tile.pos,
                 bounds: this.props.bounds,
                 canvas: this.props.canvas,
                 style: {
-                    backgroundColor: this.props.cut ? "rgb(0, 180, 0)" : "rgb(0, 150, 0)",
+                    backgroundColor: this.props.tile.type === Game.TILE_GRASS_CUT ? "rgb(0, 180, 0)" : "rgb(0, 150, 0)",
                     textAlign: "center",
                     fontSize: "40px"
                 },
                 orientation: 0
-            });
+            }, this.props.tile.number !== undefined ? this.props.tile.number : "");
         }
     });
 
@@ -123,11 +124,10 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                     var pos = new Vector(x, y);
                     var tile = self.props.game.getTile(pos);
                     return React.createElement(GrassTile, {
-                        pos: pos,
                         bounds: self.props.game.area.bounds,
                         key: String(x) + "_" + String(y),
                         canvas: canvas,
-                        cut: tile.type === Game.TILE_GRASS_CUT
+                        tile: tile
                     });
                 });
             }).flatten(1);
@@ -150,7 +150,7 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                     pos: self.props.game.pos,
                     bounds: self.props.game.area.bounds,
                     canvas: canvas,
-                    dir: self.props.game.dir
+                    dir: self.props.game.dir,
                 }),
                 React.createElement("button", {style: {
                     position: "absolute",
@@ -187,7 +187,7 @@ define(["react", "immutable", "vector", "game", "ai/edgemover"], function (React
                     game: game,
                     i: self.state.i + 1
                 });
-            }, 1);
+            }, 120);
         },
         shouldComponentUpdate: function (nextProps, nextState) {
             return !this.state.game.equals(nextState.game);
