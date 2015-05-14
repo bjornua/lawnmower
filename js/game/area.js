@@ -3,7 +3,7 @@ define(["vector", "immutable", "game/tile"], function (Vector, Immutable, Tile) 
 
     var AreaStruct = Immutable.Record({
         tiles: Immutable.List(),
-        bounds: Vector(20, 20)
+        bounds: Vector(10, 10)
     }, "Area");
 
     AreaStruct.prototype.inBounds = function (pos) {
@@ -15,11 +15,11 @@ define(["vector", "immutable", "game/tile"], function (Vector, Immutable, Tile) 
         );
     };
     AreaStruct.prototype.getTile = function (pos) {
-        var tile = Tile.Tile({pos: pos});
         if (!this.inBounds(pos)) {
+            var tile = Tile.Tile({pos: pos});
             return tile.set("type", Tile.TILE_OOB);
         }
-        return this.tiles.get(tile.pos.x + tile.pos.y * this.bounds.x, tile);
+        return this.tiles.get(pos.x + pos.y * this.bounds.x);
     };
     AreaStruct.prototype.setTile = function (tile) {
         if (!this.inBounds(tile.pos)) {

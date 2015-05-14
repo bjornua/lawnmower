@@ -2,29 +2,30 @@ define(["vector", "immutable", "game/tile"], function (Vector, Immutable, Tile) 
     "use strict";
 
 
-    var perimeter = Immutable.Seq([
+    var perimeter = Immutable.Seq.of(
         Vector(0, -1),
         Vector(1, 0),
         Vector(0, 1),
         Vector(-1, 0)
-    ]);
+    ).toSetSeq();
 
     var getAdjacent = function (area, pos) {
         return perimeter.map(function (dir) {
             return pos.add(dir);
-        }).filter(function (newPos) {
-            return area.getTile(newPos).type !== Tile.TILE_OOB;
         });
     };
 
-    var expand = function (area, prevEnds, ends) {
-        return ends.map(function (pos) {
-            return getAdjacent(area, pos);
-        }).flatten(1).filter(function (pos) {
-            return !prevEnds.has(pos);
+    var expand0 = function (area, prevEnds, ends) {
+        return ends.reduce(function (newEnds, pos) {
+            return newEnds.union(getAdjacent(area, pos));
+        }, Immutable.Set()).filter(function (pos) {
+            return (
+                area.inBounds(pos) &&
+                !prevEnds.has(pos)
+            );
         });
     };
-
+    var expand = expand0;
     var bfs = function (pos, area, callback) {
         var ends = Immutable.Set.of(pos);
         var prevEnds = Immutable.Set();

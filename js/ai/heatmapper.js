@@ -18,7 +18,7 @@ define(["vector", "immutable", "ai/tools"], function (Vector, Immutable, Tools) 
                 return s + multiplier;
             }, score);
             multiplier /= 4;
-            return i++ < 5;
+            return true;
         });
 
         return score;
