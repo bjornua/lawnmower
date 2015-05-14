@@ -1,4 +1,4 @@
-define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover"], function (React, Immutable, Vector, World, GTile, AI) {
+define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmapper"], function (React, Immutable, Vector, World, GTile, AI) {
     "use strict";
 
     var IMequals = function (a, b) {
@@ -17,11 +17,16 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
 
     var Tile = React.createClass({
         displayName: "Tile",
+        getDefaultProps: function () {
+            return {
+                fontScale: 1
+            };
+        },
         mixins: [PureRenderMixin],
         render: function () {
             var self = this;
             var pos = self.props.pos;
-            var size = Vector(1, 1);
+            var next = self.props.pos.add(Vector(1, 1));
             var dir = self.props.orientation;
 
             var scale = function (vec) {
@@ -31,35 +36,36 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
             };
 
             pos = scale(pos);
-            size = scale(size).add(pos).map(Math.floor).subtract(pos);
+            var size = scale(next).map(Math.floor);
+            pos = pos.map(Math.floor);
+            size = size.subtract(pos);
 
-            // if (dir === 1 || dir === 3) {
-            //     var inv = size.invert();
-            //     var offs = size.subtract(inv);
-            //     var offsHalf = offs.divide(Vector(2, 2));
-            //     pos = pos.add(offsHalf);
-            //     size = size.invert();
-            // }
+            if (dir === 1 || dir === 3) {
+                var inv = size.invert();
+                var offs = size.subtract(inv);
+                var offsHalf = offs.divide(Vector(2, 2));
+                pos = pos.add(offsHalf);
+                size = size.invert();
+            }
             var rot = dir * 90;
             var style = Immutable.fromJS({
                 position: "absolute",
-                left: Math.ceil(pos.x) + "px",
-                top: Math.ceil(pos.y) + "px",
+                left: pos.x + "px",
+                top: pos.y + "px",
                 width: size.x + "px",
                 height: size.y + "px",
                 lineHeight: size.y + "px",
                 transform: "rotate(" + rot + "deg)",
-                fontSize: Math.ceil(Math.min(size.y, size.x)) + "px",
+                fontSize: Math.floor(this.props.fontScale * (Math.min(size.y, size.x))) + "px",
                 overflow: "hidden",
                 verticalAlign: "middle",
-                boxSizing: "border-box",
-                // borderLeft: "1px solid rgba(0, 50, 0, 1)",
-                // borderBottom: "1px solid rgba(0, 50, 0, 1)"
+                boxSizing: "border-box"
+                // border: "1px solid rgb(0, 155, 0)"
             });
             style = style.merge(style, self.props.style);
 
             return React.createElement("div", {
-                id: "tile_" + self.props.pos.x + "_" + self.props.pos.y,
+                // id: "tile_" + self.props.pos.x + "_" + self.props.pos.y,
                 style: style.toJS()}, self.props.children);
         }
     });
@@ -78,10 +84,10 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
                 bounds: this.props.bounds,
                 canvas: this.props.canvas,
                 style: {
-                    backgroundColor: this.props.tile.type === GTile.TILE_GRASS_CUT ? "rgb(0, 180, 0)" : "rgb(0, 150, 0)",
+                    backgroundColor: this.props.tile.type === GTile.TILE_GRASS_CUT ? "rgb(0, 180, 0)" : "rgb(0, 160, 0)",
                     textAlign: "center",
-                    fontSize: "40px"
                 },
+                fontScale: 0.2,
                 orientation: 0
             }, this.props.tile.number !== undefined ? this.props.tile.number : "");
         }
@@ -99,7 +105,8 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
                 style: {
                     textAlign: "right"
                 },
-                orientation: this.props.dir
+                orientation: this.props.dir,
+                fontScale: 0.8
             }, ">");
         }
     });
@@ -109,15 +116,20 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
         mixins: [PureRenderMixin],
         getInitialState: function () {
             return {
-                canvas: Vector(document.body.clientWidth, document.body.clientHeight)
+                canvas: this.getSize()
             };
+        },
+        getSize: function () {
+            var size = Math.min(document.body.clientWidth, document.body.clientHeight);
+            return Vector(size, size);
+            return Vector((document.body.clientWidth * 9) / 10, (document.body.clientHeight * 9) / 10);
         },
         componentDidMount: function () {
             var self = this;
 
             window.addEventListener("resize", function () {
                 self.setState({
-                    canvas: Vector(document.body.clientWidth, document.body.clientHeight)
+                    canvas: self.getSize()
                 });
            });
         },

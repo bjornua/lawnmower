@@ -1,13 +1,9 @@
-define(["vector", "game", "immutable"], function (Vector, Game, Immutable) {
+define(["vector", "immutable"], function (Vector, Immutable) {
     "use strict";
 
 
 
     return function (game) {
-        game.
-        game.setNumber(function () {
-
-        });
         return game;
     };
 });

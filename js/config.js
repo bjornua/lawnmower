@@ -9,7 +9,7 @@ var fast = {
 
 require.config({
     map: {
-        "*": fast
+        "*": debug
     }
 });
 
