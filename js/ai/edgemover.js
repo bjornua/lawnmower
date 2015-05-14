@@ -1,4 +1,4 @@
-define(["vector", "game/tile", "immutable"], function (Vector, Tile, Immutable) {
+define(["vector", "game/tile", "immutable", "ai/tools"], function (Vector, Tile, Immutable, Tools) {
     "use strict";
     var getDir = function (vec) {
         if (vec.y === 1) {
@@ -13,22 +13,9 @@ define(["vector", "game/tile", "immutable"], function (Vector, Tile, Immutable) 
         return 2;
     };
 
-    var getPerimeter = function (pos, area) {
-        return Immutable.fromJS([
-            [0, -1],
-            [1, 0],
-            [0, 1],
-            [-1, 0]
-        ]).map(function (val) {
-            return pos.add(new Vector(val.get(0), val.get(1)));
-        }).filter(function (newPos) {
-            return area.getTile(newPos).type === Tile.TILE_GRASS_UNCUT;
-        });
-    };
-
     var edgeMover = function (game) {
-        var next = getPerimeter(game.pos, game.area).minBy(function (pos) {
-            var perimeter = getPerimeter(pos, game.area);
+        var next = Tools.getAdjacent(game.pos, game.area).minBy(function (pos) {
+            var perimeter = Tools.getAdjacent(pos, game.area);
             var dir = getDir(pos.subtract(game.pos));
             return perimeter.size - (game.dir === dir ? 0.5 : 0);
         });
@@ -38,7 +25,6 @@ define(["vector", "game/tile", "immutable"], function (Vector, Tile, Immutable) 
 
         var dir = getDir(next.subtract(game.pos));
 
-        // game = game.setNumber(game.pos, 1);
 
         if (game.dir === dir) {
             return game.moveForward();

@@ -85,11 +85,11 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmappe
                 canvas: this.props.canvas,
                 style: {
                     backgroundColor: this.props.tile.type === GTile.TILE_GRASS_CUT ? "rgb(0, 180, 0)" : "rgb(0, 160, 0)",
-                    textAlign: "center",
+                    textAlign: "center"
                 },
                 fontScale: 0.2,
                 orientation: 0
-            }, this.props.tile.number !== undefined ? this.props.tile.number : "");
+            }, this.props.tile.number !== undefined ? this.props.tile.number.toFixed(4) : "");
         }
     });
 
@@ -120,9 +120,8 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmappe
             };
         },
         getSize: function () {
-            var size = Math.min(document.body.clientWidth, document.body.clientHeight);
-            return Vector(size, size);
-            return Vector((document.body.clientWidth * 9) / 10, (document.body.clientHeight * 9) / 10);
+            var sizeMin = Math.min(document.body.clientWidth, document.body.clientHeight);
+            return Vector(sizeMin, sizeMin);
         },
         componentDidMount: function () {
             var self = this;
@@ -190,16 +189,18 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmappe
         componentDidMount: function () {
             var self = this;
 
-            setInterval(function () {
+            // setInterval(function () {
                 if (!self.state.running) {
                     return;
                 }
+                console.profile();
                 var game = AI(self.state.game);
+                console.profileEnd();
                 self.setState({
                     game: game,
                     i: self.state.i + 1
                 });
-            }, 1);
+            // }, 1);
         },
         shouldComponentUpdate: function (nextProps, nextState) {
             return !this.state.game.equals(nextState.game);
