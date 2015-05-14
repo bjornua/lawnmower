@@ -13,7 +13,7 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
             );
         }
     };
-    var PureRenderMixin2 = React.addons.PureRenderMixin;
+    // var PureRenderMixin2 = React.addons.PureRenderMixin;
 
     var Tile = React.createClass({
         displayName: "Tile",
@@ -31,29 +31,30 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
             };
 
             pos = scale(pos);
-            size = scale(size);
+            size = scale(size).add(pos).map(Math.floor).subtract(pos);
 
-            if (dir === 1 || dir === 3) {
-                var inv = size.invert();
-                var offs = size.subtract(inv);
-                var offsHalf = offs.divide(new Vector(2, 2));
-                pos = pos.add(offsHalf);
-                size = size.invert();
-            }
+            // if (dir === 1 || dir === 3) {
+            //     var inv = size.invert();
+            //     var offs = size.subtract(inv);
+            //     var offsHalf = offs.divide(Vector(2, 2));
+            //     pos = pos.add(offsHalf);
+            //     size = size.invert();
+            // }
             var rot = dir * 90;
             var style = Immutable.fromJS({
                 position: "absolute",
-                left: Math.floor(pos.x) + "px",
-                top: Math.floor(pos.y) + "px",
-                width: Math.ceil(size.x) + "px",
-                height: Math.ceil(size.y) + "px",
-                lineHeight: Math.ceil(size.y) + "px",
+                left: Math.ceil(pos.x) + "px",
+                top: Math.ceil(pos.y) + "px",
+                width: size.x + "px",
+                height: size.y + "px",
+                lineHeight: size.y + "px",
                 transform: "rotate(" + rot + "deg)",
                 fontSize: Math.ceil(Math.min(size.y, size.x)) + "px",
                 overflow: "hidden",
                 verticalAlign: "middle",
                 boxSizing: "border-box",
-                border: "1px solid rgba(0, 50, 0, 1)"
+                // borderLeft: "1px solid rgba(0, 50, 0, 1)",
+                // borderBottom: "1px solid rgba(0, 50, 0, 1)"
             });
             style = style.merge(style, self.props.style);
 
@@ -64,7 +65,13 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
     });
     var GrassTile = React.createClass({
         displayName: "GrassTile",
-        mixins: [PureRenderMixin],
+        shouldComponentUpdate: function (nextProps) {
+            return !(
+                Immutable.is(this.props.tile, nextProps.tile) &&
+                Immutable.is(this.props.bounds, nextProps.bounds) &&
+                Immutable.is(this.props.canvas, nextProps.canvas)
+            );
+        },
         render: function () {
             return React.createElement(Tile, {
                 pos: this.props.tile.pos,
@@ -102,8 +109,7 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
         mixins: [PureRenderMixin],
         getInitialState: function () {
             return {
-                width: document.body.clientWidth,
-                height: document.body.clientHeight
+                canvas: Vector(document.body.clientWidth, document.body.clientHeight)
             };
         },
         componentDidMount: function () {
@@ -111,28 +117,26 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
 
             window.addEventListener("resize", function () {
                 self.setState({
-                    width: document.body.clientWidth,
-                    height: document.body.clientHeight
+                    canvas: Vector(document.body.clientWidth, document.body.clientHeight)
                 });
            });
         },
         render: function () {
             var self = this;
-            var canvas = new Vector(self.state.width, self.state.height);
-            var tiles = self.props.game.area.tiles.map(function (tile) {
+            var tiles = self.props.game.area.tiles.map(function (tile, key) {
                 return React.createElement(GrassTile, {
                     bounds: self.props.game.area.bounds,
-                    key: String(tile.pos.x) + "_" + String(tile.pos.y),
-                    canvas: canvas,
+                    key: key,
+                    canvas: self.state.canvas,
                     tile: tile
                 });
             });
-            var middle = canvas.divide(new Vector(-2, -2));
+            var middle = self.state.canvas.divide(new Vector(-2, -2));
 
             return React.createElement("div", {
                 style: {
-                    width: String(canvas.x) + "px",
-                    height: String(canvas.y) + "px",
+                    width: String(self.state.canvas.x) + "px",
+                    height: String(self.state.canvas.y) + "px",
                     position: "absolute",
                     top: "50%",
                     left: "50%",
@@ -145,7 +149,7 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/edgemover
                 React.createElement(LawnMower, {
                     pos: self.props.game.pos,
                     bounds: self.props.game.area.bounds,
-                    canvas: canvas,
+                    canvas: self.state.canvas,
                     dir: self.props.game.dir
                 }),
                 React.createElement("button", {style: {

@@ -7,7 +7,7 @@ define(["immutable"], function (Immutable) {
     }, "Vector");
 
     var Vector = function (x, y) {
-        return new VectorStruct({x: x, y: y});
+        return VectorStruct({x: x, y: y});
     };
 
     VectorStruct.prototype.add = function (other) {

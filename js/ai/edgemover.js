@@ -38,7 +38,7 @@ define(["vector", "game/tile", "immutable"], function (Vector, Tile, Immutable) 
 
         var dir = getDir(next.subtract(game.pos));
 
-        //game = game.setNumber(game.pos, 1);
+        // game = game.setNumber(game.pos, 1);
 
         if (game.dir === dir) {
             return game.moveForward();

@@ -3,7 +3,7 @@ define(["vector", "immutable", "game/area", "game/tile"], function (Vector, Immu
 
     var World = Immutable.Record({
         area: Area.Area(),
-        pos: new Vector(1, 0),
+        pos: Vector(1, 0),
         dir: 0,
         score: 0
     }, "World");
@@ -67,13 +67,13 @@ define(["vector", "immutable", "game/area", "game/tile"], function (Vector, Immu
     World.prototype.moveForward = function () {
         var v;
         if (this.dir === 0) {
-            v = new Vector(1, 0);
+            v = Vector(1, 0);
         } else if (this.dir === 1) {
-            v = new Vector(0, 1);
+            v = Vector(0, 1);
         } else if (this.dir === 2) {
-            v = new Vector(-1, 0);
+            v = Vector(-1, 0);
         } else if (this.dir === 3) {
-            v = new Vector(0, -1);
+            v = Vector(0, -1);
         }
 
         var newPos = this.pos.add(v);
