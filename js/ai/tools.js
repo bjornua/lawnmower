@@ -7,7 +7,7 @@ define(["vector", "immutable", "game/tile"], function (Vector, Immutable, Tile) 
         Vector(1, 0),
         Vector(0, 1),
         Vector(-1, 0)
-    ).toSetSeq();
+    ).cacheResult();
 
     var getAdjacent = function (area, pos) {
         return perimeter.map(function (dir) {
