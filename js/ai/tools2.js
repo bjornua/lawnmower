@@ -26,16 +26,19 @@ define(["vector", "immutable", "game/tile"], function (Vector, Immutable, Tile) 
         });
     };
     var expand = expand0;
-    var bfs = function (pos, area, callback) {
+    var bfs = function (pos, area) {
+
         var ends = Immutable.Set.of(pos);
         var prevEnds = Immutable.Set();
         var tmpEnds;
-        while(ends.size > 0 && callback(ends)) {
+        Immutable.Range().takeWhile(function () {
+            return ends.size > 0;
+        }).map(function () {
             tmpEnds = expand(area, prevEnds, ends);
             prevEnds = ends;
             ends = tmpEnds;
             tmpEnds = undefined;
-        }
+        });
     };
 
     return {
