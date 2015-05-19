@@ -1,48 +1,40 @@
 define(["vector", "immutable", "ai/tools2"], function (Vector, Immutable, Tools) {
     "use strict";
 
-
-    var setNumbers = function (area, positions, value) {
-        return positions.map(function (pos) {
-            return area.getTile(pos).set("number", value);
-        });
-    };
-
-    var count = function(pos, area) {
-        var score = 0;
-
-        var multiplier = 1.0;
-        var i = 0;
-        Tools.bfs(pos, area, function (ends) {
-            score = ends.reduce(function (s, end) {
-                return s + multiplier;
-            }, score);
-            multiplier /= 4;
-            return true;
-        });
-
-        return score;
-    };
-
-    var mapTiles = function(area) {
-        area.tiles.map(function(tile) {
-            score = bfs(area).
-            tile.set("number", score);
-        });
-        var tiles = Immutable.List();
-
-        return tiles;
-    };
-
-
-    return function (game) {
-        var tiles = mapTiles(game.area);
-
-        tiles.forEach(function (tile) {
-            game = game.setTile(tile);
-        });
-
+    var updateScore = function (game, pos, dist) {
+        var tile = game.getTile(pos);
+        var score = tile.get("number");
+        if (score === undefined) {
+            score = 0;
+        }
+        score = score + 1 / (dist + 1);
+        tile = tile.set("number", score);
+        game = game.setTile(tile);
 
         return game;
+
+    };
+
+    var mapTiles = function(game) {
+        game.area.tiles.forEach(function(initialTile) {
+            Tools.bfs(initialTile.pos, game.area).takeWhile(function() {
+                return true;
+            }).forEach(function (res) {
+                game = updateScore(game, res.pos, res.dist);
+            });
+        });
+        return game;
+    };
+
+    return function (game) {
+
+        return mapTiles(game);
+
+        // tiles.forEach(function (tile) {
+        //     game = game.setTile(tile);
+        // });
+
+
+        // return game;
     };
 });

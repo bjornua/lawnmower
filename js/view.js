@@ -1,4 +1,4 @@
-define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmapper"], function (React, Immutable, Vector, World, GTile, AI) {
+define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmapper2"], function (React, Immutable, Vector, World, GTile, AI) {
     "use strict";
 
     var IMequals = function (a, b) {
@@ -13,7 +13,6 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmappe
             );
         }
     };
-    // var PureRenderMixin2 = React.addons.PureRenderMixin;
 
     var Tile = React.createClass({
         displayName: "Tile",
@@ -89,7 +88,7 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmappe
                 },
                 fontScale: 0.2,
                 orientation: 0
-            }, this.props.tile.number !== undefined ? this.props.tile.number.toFixed(4) : "");
+            }, this.props.tile.number !== undefined ? this.props.tile.number.toFixed(1) : "");
         }
     });
 

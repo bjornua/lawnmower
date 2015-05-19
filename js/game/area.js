@@ -3,7 +3,7 @@ define(["vector", "immutable", "game/tile"], function (Vector, Immutable, Tile) 
 
     var AreaStruct = Immutable.Record({
         tiles: Immutable.List(),
-        bounds: Vector(13, 13)
+        bounds: Vector(10, 10)
     }, "Area");
 
     AreaStruct.prototype.inBounds = function (pos) {
