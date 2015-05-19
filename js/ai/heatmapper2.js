@@ -7,7 +7,7 @@ define(["vector", "immutable", "ai/tools2"], function (Vector, Immutable, Tools)
         if (score === undefined) {
             score = 0;
         }
-        score = score + 1 / (dist + 1);
+        score = score + (1 / (dist + 1));
         tile = tile.set("number", score);
         game = game.setTile(tile);
 
@@ -17,8 +17,8 @@ define(["vector", "immutable", "ai/tools2"], function (Vector, Immutable, Tools)
 
     var mapTiles = function(game) {
         game.area.tiles.forEach(function(initialTile) {
-            Tools.bfs(initialTile.pos, game.area).takeWhile(function() {
-                return true;
+            Tools.bfs(initialTile.pos, game.area).takeWhile(function(res) {
+                return res.dist < 4;
             }).forEach(function (res) {
                 game = updateScore(game, res.pos, res.dist);
             });
