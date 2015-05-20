@@ -5,7 +5,8 @@ define(["vector", "immutable", "game/area", "game/tile"], function (Vector, Immu
         area: Area.Area(),
         pos: Vector(1, 0),
         dir: 0,
-        score: 0
+        score: 0,
+        customState: Immutable.Map()
     }, "World");
 
     World.prototype.turnRight = function () {
@@ -88,9 +89,12 @@ define(["vector", "immutable", "game/area", "game/tile"], function (Vector, Immu
         });
     };
 
-    World.prototype.backward = function () {
+    World.prototype.setState = function (key, value) {
+        return this.setIn(["customState", key], value);
     };
-
+    World.prototype.getState = function (key) {
+        return this.customState.get(key);
+    };
     return {
         World: World
     };

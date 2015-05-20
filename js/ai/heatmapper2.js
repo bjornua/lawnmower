@@ -27,14 +27,12 @@ define(["vector", "immutable", "ai/tools2"], function (Vector, Immutable, Tools)
     };
 
     return function (game) {
-
-        return mapTiles(game);
-
-        // tiles.forEach(function (tile) {
-        //     game = game.setTile(tile);
-        // });
-
-
-        // return game;
+        if (game.getState("initialized") !== true) {
+            game = mapTiles(game);
+            game = game.setState("initialized", true);
+        } else {
+            game = game.moveForward();
+        }
+        return game;
     };
 });

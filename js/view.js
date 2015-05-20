@@ -188,18 +188,16 @@ define(["react", "immutable", "vector", "game/world", "game/tile", "ai/heatmappe
         componentDidMount: function () {
             var self = this;
 
-            // setInterval(function () {
+            setInterval(function () {
                 if (!self.state.running) {
                     return;
                 }
-                console.profile();
                 var game = AI(self.state.game);
-                console.profileEnd();
                 self.setState({
                     game: game,
                     i: self.state.i + 1
                 });
-            // }, 1);
+            }, 500);
         },
         shouldComponentUpdate: function (nextProps, nextState) {
             return !this.state.game.equals(nextState.game);
